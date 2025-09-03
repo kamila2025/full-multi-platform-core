@@ -66,29 +66,14 @@ $(function () {
         });
 
         // 發送axios請求
-        console.log('發送登入請求:', {
-          email: formObject.email,
-          timestamp: new Date().toISOString(),
-          url: '/admin/login'
-        });
-
         axios
           .post('/admin/login', formObject)
           .then(function (response) {
             // 關閉載入視窗
             Swal.close();
 
-            console.log('登入回應:', {
-              success: response.data.success,
-              message: response.data.message,
-              redirect_url: response.data.data?.redirect_url,
-              timestamp: new Date().toISOString()
-            });
-
             if (response.data.success) {
               // 登入成功
-              console.log('登入成功，準備跳轉:', response.data.data.redirect_url);
-
               Swal.fire({
                 icon: 'success',
                 title: '登入成功！',
@@ -98,13 +83,10 @@ $(function () {
                 showConfirmButton: false,
                 allowOutsideClick: false
               }).then(function () {
-                console.log('執行跳轉到:', response.data.data.redirect_url);
                 window.location.href = response.data.data.redirect_url;
               });
             } else {
               // 登入失敗
-              console.log('登入失敗:', response.data.message);
-
               Swal.fire({
                 icon: 'error',
                 title: '登入失敗',
@@ -117,17 +99,10 @@ $(function () {
             // 關閉載入視窗
             Swal.close();
 
-            console.error('登入請求錯誤:', {
-              status: error.response?.status,
-              message: error.response?.data?.message || error.message,
-              data: error.response?.data,
-              timestamp: new Date().toISOString()
-            });
-
             Swal.fire({
               icon: 'error',
               title: '登入失敗',
-              text: error.response?.data?.message || '登入時發生錯誤',
+              text: error.response.data.message,
               confirmButtonText: '確定'
             });
           });

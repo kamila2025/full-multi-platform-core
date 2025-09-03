@@ -13,20 +13,9 @@ Route::middleware(['web'])->group(function () {
     Route::middleware(['auth:web'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('admin.dashboard.index');
 
-        // Tenant
-        Route::resource('tenants', \App\Http\Controllers\Admin\AdminTenantController::class, [
-          'names' => [
-              'index' => 'central.tenant.index',
-              'create' => 'central.tenant.create',
-              'store' => 'central.tenant.store',
-              'show' => 'central.tenant.show',
-              'edit' => 'central.tenant.edit',
-              'update' => 'central.tenant.update',
-              'destroy' => 'central.tenant.destroy',
-          ]
-        ]);
+        // 租戶 Tenant
+        Route::resource('tenants', \App\Http\Controllers\Admin\AdminTenantController::class)->names('admin.tenants');
     });
-
   });
 });
 

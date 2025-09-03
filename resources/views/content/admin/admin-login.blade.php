@@ -21,7 +21,7 @@
 @endsection
 
 @section('page-script')
-    <script src="{{ asset('js/admin/auth/admin-auth.js?v=' . time()) }}"></script>
+    <script src="{{ asset('js/admin/admin-auth.js?v=' . time()) }}"></script>
 @endsection
 
 @section('content')

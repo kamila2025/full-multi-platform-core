@@ -2,7 +2,7 @@
   "menu": [
     {
       "url": "/",
-      "name": "Home",
+      "name": "Home1",
       "icon": "menu-icon tf-icons bx bx-home-circle",
       "slug": "pages-home"
     },

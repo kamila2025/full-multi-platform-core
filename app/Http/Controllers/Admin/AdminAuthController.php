@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class AdminAuthController extends Controller
 {
-
+  /**
+   * 登入頁面
+   */
   function index()
   {
     return view('content.admin.admin-login', [
@@ -17,6 +18,9 @@ class AdminAuthController extends Controller
     ]);
   }
 
+  /**
+   * 登入
+   */
   function login(Request $request)
   {
     try {
@@ -42,6 +46,9 @@ class AdminAuthController extends Controller
     }
   }
 
+  /**
+   * 登出
+   */
   function logout()
   {
     Auth::guard('web')->logout();
