@@ -4,7 +4,7 @@
 
 @extends('layouts/layoutMaster')
 
-@section('title', '管理員登入')
+@section('title', '登入')
 
 @section('vendor-style')
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/@form-validation/umd/styles/index.min.css') }}" />
@@ -21,7 +21,7 @@
 @endsection
 
 @section('page-script')
-    <script src="{{ asset('js/admin/admin-auth.js?v=' . time()) }}"></script>
+    <script src="{{ asset('js/tenant/tenant-auth.js?v=' . time()) }}"></script>
 @endsection
 
 @section('content')
@@ -43,10 +43,10 @@
                         </div>
                         <!-- /Logo -->
 
-                        <h4 class="mb-4 text-center">{{ env('APP_NAME') }}</h4>
-                        <p class="mb-4 text-center">管理員登入</p>
+                        <h4 class="mb-4 text-center">{{ $tenant->name }}</h4>
+                        <p class="mb-4 text-center">登入後台</p>
 
-                        <form id="AdminLoginForm" class="mb-3">
+                        <form id="tenantLoginForm" class="mb-3">
                             <div class="mb-3">
                                 <label for="email" class="form-label">帳號<label class="text-danger">*</label></label>
                                 <input type="text" class="form-control" id="email" name="email">

@@ -86,7 +86,7 @@ $(function () {
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                      <a class="dropdown-item d-flex align-items-center" href="${apiUrl}/${full.tenant_id}/impersonate">
+                      <a class="dropdown-item d-flex align-items-center" href="${apiUrl}/${full.tenant_id}/impersonate" target="_blank">
                         <span>模擬登入</span>
                       </a>
                     </li>

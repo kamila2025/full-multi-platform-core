@@ -186,10 +186,10 @@ class AdminTenantController extends Controller
       tenancy()->end();
 
       // 創建 token
-      $token = tenancy()->impersonate($tenant, $user->id, $redirectUrl = '/dashboard');
+      $token = tenancy()->impersonate($tenant, $user->id, $redirectUrl = "{$tenant->id}/dashboard", $authGuard = 'tenant');
 
       // 導向模擬登入路由
-      return redirect()->route('tenants.impersonate.login', ['tenant' => $tenant->id, 'token' => $token->token]);
+      return redirect("{$tenant->id}/impersonate/{$token->token}");
     } else {
       return $this->errorResponse('模擬登入失敗，請聯絡管理者', null, 500);
     }
