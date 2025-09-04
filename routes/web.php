@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
+/**
+ * 管理後台路由
+ */
 Route::middleware(['web'])->group(function () {
   Route::prefix('admin')->middleware([])->group(function () {
     // Auth
@@ -15,21 +18,25 @@ Route::middleware(['web'])->group(function () {
 
         // 租戶 Tenant
         Route::resource('tenants', \App\Http\Controllers\Admin\AdminTenantController::class)->names('admin.tenants');
+        // 模擬登入租戶
+        Route::get('/tenants/{id}/impersonate', [\App\Http\Controllers\Admin\AdminTenantController::class, 'impersonate'])->name('admin.impersonate.login');;
     });
   });
 });
 
+/**
+ * 租戶路由
+ */
+Route::group([
+  'prefix' => '/{tenant}',
+  'middleware' => [Stancl\Tenancy\Middleware\InitializeTenancyByPath::class],
+], function () {
+  // 模擬租戶登入
+  Route::get('/impersonate/{token}', function ($token) {
+    return Stancl\Tenancy\Features\UserImpersonation::makeResponse($token);
+  })->name('tenants.impersonate.login');
 
-// Main Page Route
-// Route::get('/', [HomePage::class, 'index'])->name('pages-home');
-// Route::get('/page-2', [Page2::class, 'index'])->name('pages-page-2');
-
-// // locale
-// Route::get('lang/{locale}', [LanguageController::class, 'swap']);
-
-// // pages
-// Route::get('/pages/misc-error', [MiscError::class, 'index'])->name('pages-misc-error');
-
-// // authentication
-// Route::get('/auth/login-basic', [LoginBasic::class, 'index'])->name('auth-login-basic');
-// Route::get('/auth/register-basic', [RegisterBasic::class, 'index'])->name('auth-register-basic');
+  Route::get('/', function () {
+    return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+  });
+});

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
+use App\Models\User;
 use App\Services\tenantService;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -140,7 +141,28 @@ class AdminTenantController extends Controller
   /**
    * 模擬登入租戶
    */
-  public function simulateLogin($id)
+  public function impersonate($id)
   {
+    if (auth()->check()) {
+      // 讀取租戶資料
+      $tenant = Tenant::findOrFail($id);
+
+      // 租戶初始化
+      tenancy()->initialize($tenant);
+
+      // 讀取租戶使用者
+      $user = User::where('tenant_id', $tenant->id)->first();
+
+      // 租戶讀取結束
+      tenancy()->end();
+
+      // 創建 token
+      $token = tenancy()->impersonate($tenant, $user->id, $redirectUrl = '/dashboard');
+
+      // 導向模擬登入路由
+      return redirect()->route('tenants.impersonate.login', ['tenant' => $tenant->id, 'token' => $token->token]);
+    } else {
+      return $this->errorResponse('模擬登入失敗，請聯絡管理者', null, 500);
+    }
   }
 }

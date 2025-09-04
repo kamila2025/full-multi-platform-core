@@ -92,7 +92,7 @@ $(function () {
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                      <a class="dropdown-item d-flex align-items-center" href="${apiUrl}/${full.tenant_id}/edit">
+                      <a class="dropdown-item d-flex align-items-center" href="${apiUrl}/${full.tenant_id}/impersonate">
                         <span>模擬登入</span>
                       </a>
                     </li>
@@ -157,66 +157,6 @@ $(function () {
       // }
     });
   }
-
-  $(document).on('click', '.delete-record', function () {
-    const tenantId = $(this).data('id');
-
-    Swal.fire({
-      title: '確定要刪除嗎',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: '確定刪除',
-      cancelButtonText: '取消'
-    }).then(result => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: '刪除中...',
-          showConfirmButton: false,
-          allowOutsideClick: false,
-          willOpen: () => {
-            Swal.showLoading();
-          }
-        });
-
-        axios
-          .delete(`${apiUrl}/${tenantId}`)
-          .then(function (response) {
-            Swal.close();
-
-            if (response.data.success) {
-              table.ajax.reload();
-
-              Swal.fire({
-                icon: 'success',
-                title: '刪除成功',
-                customClass: {
-                  confirmButton: 'btn btn-success'
-                }
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: '刪除失敗',
-                text: response.data.message,
-                confirmButtonText: '確定'
-              });
-            }
-          })
-          .catch(function (error) {
-            Swal.close();
-
-            Swal.fire({
-              icon: 'error',
-              title: '刪除失敗',
-              text: error.response.data.message,
-              confirmButtonText: '確定'
-            });
-          });
-      }
-    });
-  });
 
   $(document).on('click', '.delete-record', function () {
     const tenantId = $(this).data('id');
