@@ -28,48 +28,15 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
-        $this->mapWebRoutes();
-        $this->mapApiRoutes();
-
-        // $this->routes(function () {
-        //     Route::middleware('api')
-        //         ->prefix('api')
-        //         ->namespace($this->namespace)
-        //         ->group(base_path('routes/api.php'));
-
-        //     Route::middleware('web')
-        //         ->namespace($this->namespace)
-        //         ->group(base_path('routes/web.php'));
-        // });
-    }
-
-    /**
-     * 多租戶套件
-     * 用於切分讓中心平台只讀取 web.php 路徑
-     */
-    protected function mapWebRoutes()
-    {
-        foreach ($this->centralDomains() as $domain) {
-            Route::middleware('web')
-                ->domain($domain)
-                ->namespace($this->namespace)
-                ->group(base_path('routes/web.php'));
-        }
-    }
-
-    protected function mapApiRoutes()
-    {
-        foreach ($this->centralDomains() as $domain) {
-            Route::prefix('api')
-                ->domain($domain)
-                ->middleware('api')
+        $this->routes(function () {
+            Route::middleware('api')
+                ->prefix('api')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
-        }
-    }
 
-    protected function centralDomains(): array
-    {
-        return config('tenancy.central_domains', []);
+            Route::middleware('web')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/web.php'));
+        });
     }
 }
