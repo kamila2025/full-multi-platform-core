@@ -2,34 +2,61 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Admin\Tenant\TenantStatusEnum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
-use Illuminate\Support\Facades\DB;
+use App\Services\tenantService;
+use Yajra\DataTables\Facades\DataTables;
 
 class AdminTenantController extends Controller
 {
+  protected $tenantService;
+
+  public function __construct(tenantService $tenantService)
+  {
+    $this->tenantService = $tenantService;
+  }
+
   /**
    * 租戶管理頁面
    */
-  function index()
+  public function index(Request $request)
   {
+    if ($request->ajax()) {
+      $records = Tenant::orderBy('sort', 'asc')
+          ->get();
+
+      return DataTables::of($records)
+        ->addColumn('tenant_id',            fn($record) => $record->id)
+        ->addColumn('tenant_name',          fn($record) => $record->name)
+        ->addColumn('tenant_expire_date',   fn($record) => $record->expire_date)
+        ->addColumn('tenant_status',        fn($record) => TenantStatusEnum::from($record->status)->label())
+        ->addColumn('tenant_status_badge',  fn($record) => TenantStatusEnum::from($record->status)->badge())
+        ->addColumn('tenant_created_at',    fn($record) => $record->created_at->format('Y-m-d H:i:s'))
+        ->make(true);
+      }
+
       return view('content.admin.admin-tenants');
   }
 
-  function create()
+  /**
+   * 顯示創建租戶表單
+   */
+  public function create()
   {
-      $tenantId = $this->generateUniqueTenantId(6);
+      $tenantId = $this->tenantService->generateUniqueTenantId(6);
 
       return view('content.admin.admin-tenants-add', ['tenantId' => $tenantId]);
   }
 
-  function store(Request $request)
+  /**
+   * 創建租戶
+   */
+  public function store(Request $request)
   {
     try {
-      DB::beginTransaction();
-
       $attributes = $request->validate([
         'id'           => 'required|string|max:12',
         'name'         => 'required|string|max:255',
@@ -46,66 +73,74 @@ class AdminTenantController extends Controller
         'status'       => '租戶狀態',
       ]);
 
-      $tenantId = $this->generateUniqueTenantId(6);
+      // 創建租戶與租戶管理員
+      $this->tenantService->createTenant($attributes);
 
-      $formattedPayments = [];
-      foreach ($attributes['payments'] as $index => $payment) {
-        $identifier    = $payment["group-a[$index][form-repeater-1]"] ?? null;
-        $customer_name = $payment["group-a[$index][form-repeater-2]"] ?? null;
-        $customer_id   = $payment["group-a[$index][form-repeater-3]"] ?? null;
-        $str_check     = $payment["group-a[$index][form-repeater-4]"] ?? null;
-
-        if($identifier == null || $customer_name == null || $customer_id == null || $str_check == null) {
-          continue;
-        }
-
-        $formattedPayments[] = [
-          'identifier'    => $identifier,
-          'customer_name' => $customer_name,
-          'customer_id'   => $customer_id,
-          'str_check'     => $str_check,
-        ];
-      }
-
-      $tenantId = $this->generateUniqueTenantId(6);
-      $tenantData = [
-          'id'              => $tenantId,
-          'tenant_name'     => $attributes['name'],
-          'tenancy_db_name' => 'adminserver_' . $tenantId,
-          'identifier'      => $attributes['identifier'],
-          'expire_date'     => $attributes['expire_date'],
-          'status'          => $attributes['status'],
-          'payment'         => $formattedPayments,
-          'admin_email'     => $attributes['email'],
-      ];
-
-      CreateTenantWithAdminUser::dispatch(
-        $tenantData,
-        $attributes['email'],
-        $attributes['password']
-      );
-
-      return response()->json(['message' => '保存成功'], 200);
-    } catch(\Illuminate\Validation\ValidationException $e) {
-      $errorMessage = $e->validator->errors()->first();
-      return response()->json(['error' => $errorMessage], 422);
-    }
-    catch (\Exception $e) {
-      return response()->json(['error' => '新增失敗，請聯絡管理者'], 500);
+      return $this->successResponse('租戶新增成功', ['redirect_url' => route('admin.tenants.index')], 200);
+    } catch (\Throwable $e) {
+      return $this->errorResponse('租戶新增失敗，請聯絡管理者', null, 500);
     }
   }
 
   /**
-   * 生成唯一的租戶ID
+   * 顯示編輯租戶表單
    */
-  public function generateUniqueTenantId($length = 6)
+  public function edit($id)
   {
-    $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      $tenant = Tenant::findOrFail($id);
 
-    do {
-        $tenantId = substr(str_shuffle(str_repeat($characters, $length)), 0, $length);
-    } while (Tenant::where('id', $tenantId)->exists());
+      return view('content.admin.admin-tenants-add', ['tenant' => $tenant]);
+  }
 
-    return $tenantId;
+  /**
+   * 更新租戶
+   */
+  public function update(Request $request, $id)
+  {
+    try {
+      $attributes = $request->validate([
+        'id'           => 'required|string|max:12',
+        'name'         => 'required|string|max:255',
+        'email'        => 'required|email|max:255',
+        'password'     => 'nullable|string|min:5',
+        'expire_date'  => 'required|date',
+        'status'       => 'required|string|in:activated,unactivated',
+      ],[],[
+        'id'           => '租戶ID',
+        'name'         => '租戶名稱',
+        'email'        => '租戶信箱',
+        'password'     => '租戶密碼',
+        'expire_date'  => '到期時間',
+        'status'       => '租戶狀態',
+      ]);
+
+      // 更新租戶
+      $this->tenantService->updateTenant($id, $attributes);
+
+      return $this->successResponse('租戶更新成功', ['redirect_url' => route('admin.tenants.index')], 200);
+    } catch (\Throwable $e) {
+      return $this->errorResponse('租戶更新失敗，請聯絡管理者', null, 500);
+    }
+  }
+
+  /**
+   * 刪除租戶
+   */
+  public function destroy($id)
+  {
+    try {
+      $this->tenantService->deleteTenant($id);
+
+      return $this->successResponse('租戶刪除成功', ['redirect_url' => route('admin.tenants.index')], 200);
+    } catch (\Throwable $e) {
+      return $this->errorResponse('租戶刪除失敗，請聯絡管理者', null, 500);
+    }
+  }
+
+  /**
+   * 模擬登入租戶
+   */
+  public function simulateLogin($id)
+  {
   }
 }
