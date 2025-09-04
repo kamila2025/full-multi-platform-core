@@ -8,20 +8,13 @@ $(function () {
   const dataTables = $('.tenant-datatable');
   const apiUrl = '/admin/tenants';
 
-  // const typeSearch = $('#typeSearch');
-  // const statusSearch = $('#statusSearch');
-  // const startDateSearch = $('#startDateSearch');
-  // const endDateSearch = $('#endDateSearch');
-
-  // if (document.querySelectorAll('.dob-picker')) {
-  //   document.querySelectorAll('.dob-picker').forEach(function (datepicker) {
-  //     datepicker.flatpickr({
-  //       allowInput: false,
-  //       monthSelectorType: 'static',
-  //       locale: 'zh_tw'
-  //     });
-  //   });
-  // }
+  // 搜尋欄位
+  const searchId = $('#searchId');
+  const searchName = $('#searchName');
+  const searchStatus = $('#searchStatus');
+  const searchUser = $('#searchUser');
+  const searchBtn = $('#searchBtn');
+  const resetBtn = $('#resetBtn');
 
   if (dataTables.length) {
     var table = dataTables.DataTable({
@@ -35,10 +28,10 @@ $(function () {
         url: apiUrl,
         type: 'GET',
         data: function (d) {
-          // d.typeSearch = typeSearch.val();
-          // d.statusSearch = statusSearch.val();
-          // d.startDateSearch = startDateSearch.val();
-          // d.endDateSearch = endDateSearch.val();
+          d.searchId = searchId.val();
+          d.searchName = searchName.val();
+          d.searchStatus = searchStatus.val();
+          d.searchUser = searchUser.val();
         },
         error: function (xhr, error, thrown) {
           Swal.fire({
@@ -53,8 +46,9 @@ $(function () {
         { data: 'tenant_id' },
         { data: 'tenant_name' },
         { data: 'tenant_expire_date' },
-        { data: 'tenant_status' },
+        { data: 'tenant_user_name' },
         { data: 'tenant_created_at' },
+        { data: 'tenant_status' },
         { data: null }
       ],
       columnDefs: [
@@ -75,7 +69,7 @@ $(function () {
           }
         },
         {
-          targets: 3,
+          targets: 5,
           render: function (data, type, full, meta) {
             return `<span class="badge ${full['tenant_status_badge']}">${full['tenant_status']}</span>`;
           }
@@ -148,16 +142,24 @@ $(function () {
         }
       },
       buttons: []
-      // initComplete: function () {
-      //   [typeSearch, statusSearch, startDateSearch, endDateSearch].forEach(function (selector) {
-      //     $(selector).on('change', function () {
-      //       table.draw();
-      //     });
-      //   });
-      // }
     });
   }
 
+  // 搜尋事件
+  searchBtn.on('click', function () {
+    table.draw();
+  });
+
+  // 重置事件
+  resetBtn.on('click', function () {
+    searchId.val('');
+    searchName.val('');
+    searchStatus.val('').trigger('change');
+    searchUser.val('').trigger('change');
+    table.draw();
+  });
+
+  // 刪除租戶事件
   $(document).on('click', '.delete-record', function () {
     const tenantId = $(this).data('id');
 

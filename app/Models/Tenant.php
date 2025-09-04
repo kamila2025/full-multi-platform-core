@@ -27,6 +27,14 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         ];
     }
 
+    /**
+     * 租戶管理員
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     protected static function booted()
     {
         static::creating(function (Model $model) {

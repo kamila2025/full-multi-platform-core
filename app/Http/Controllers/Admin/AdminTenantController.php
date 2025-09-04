@@ -26,8 +26,34 @@ class AdminTenantController extends Controller
   public function index(Request $request)
   {
     if ($request->ajax()) {
-      $records = Tenant::orderBy('sort', 'asc')
-          ->get();
+      $query = Tenant::query();
+
+      // 搜尋條件
+      if ($request->filled('searchId')) {
+        $query->where('id', 'like', '%' . $request->searchId . '%');
+      }
+
+      if ($request->filled('searchName')) {
+        $query->where('name', 'like', '%' . $request->searchName . '%');
+      }
+
+      if ($request->filled('searchStatus')) {
+        $query->where('data->status', $request->searchStatus);
+      }
+
+      if ($request->filled('searchStartDate')) {
+        $query->whereDate('created_at', '>=', $request->searchStartDate);
+      }
+
+      if ($request->filled('searchEndDate')) {
+        $query->whereDate('created_at', '<=', $request->searchEndDate);
+      }
+
+      if ($request->filled('searchUser')) {
+        $query->where('user_id', $request->searchUser);
+      }
+
+      $records = $query->orderBy('sort', 'asc')->get();
 
       return DataTables::of($records)
         ->addColumn('tenant_id',            fn($record) => $record->id)
@@ -35,11 +61,14 @@ class AdminTenantController extends Controller
         ->addColumn('tenant_expire_date',   fn($record) => $record->expire_date)
         ->addColumn('tenant_status',        fn($record) => TenantStatusEnum::from($record->status)->label())
         ->addColumn('tenant_status_badge',  fn($record) => TenantStatusEnum::from($record->status)->badge())
+        ->addColumn('tenant_user_name',     fn($record) => $record->user->name)
         ->addColumn('tenant_created_at',    fn($record) => $record->created_at->format('Y-m-d H:i:s'))
         ->make(true);
       }
 
-      return view('content.admin.admin-tenants');
+      return view('content.admin.admin-tenants', [
+        'users' => User::all(),
+      ]);
   }
 
   /**
