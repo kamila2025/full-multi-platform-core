@@ -109,7 +109,7 @@ class TemplateCustomizer {
     this.settings.styles = styles || STYLES;
     this.settings.navbarOptions = navbarOptions || NAVBAR_OPTIONS;
     this.settings.defaultStyle = defaultStyle || DEFAULT_STYLE;
-    this.settings.lang = lang || 'en';
+    this.settings.lang = lang || 'en' || 'zh';
     this.pathResolver = pathResolver || (p => p);
 
     if (this.settings.styles.length < 2) {
@@ -1261,6 +1261,19 @@ TemplateCustomizer.LANGUAGES = {
     content_label: 'Inhalt',
     layout_navbar_label: 'Art der Navigationsleiste',
     direction_label: 'Richtung'
+  },
+  zh: {
+    panel_header: '模板自定義',
+    panel_sub_header: '即時自訂和預覽',
+    theming_header: '主題',
+    style_label: '樣式（模式）',
+    theme_label: '主題',
+    layout_header: '佈局',
+    layout_label: '菜單（導航）',
+    layout_header_label: '頁面類型',
+    content_label: '内容',
+    layout_navbar_label: '導覽列類型',
+    direction_label: '方向'
   }
 };
 
