@@ -67,7 +67,7 @@ $(function () {
 
         // 發送axios請求
         axios
-          .post(`/${tenant}/login`, formObject)
+          .post(`/${tenant}/admin/login`, formObject)
           .then(function (response) {
             // 關閉載入視窗
             Swal.close();

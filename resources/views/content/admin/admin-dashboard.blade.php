@@ -19,4 +19,5 @@
 @endsection
 
 @section('content')
+    <h1>這是admin後台</h1>
 @endsection

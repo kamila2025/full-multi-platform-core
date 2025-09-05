@@ -186,7 +186,7 @@ class AdminTenantController extends Controller
       tenancy()->end();
 
       // 創建 token
-      $token = tenancy()->impersonate($tenant, $user->id, $redirectUrl = "{$tenant->id}/dashboard", $authGuard = 'tenant');
+      $token = tenancy()->impersonate($tenant, $user->id, $redirectUrl = route('tenant.dashboard.index', ['tenant' => $tenant->id]), $authGuard = 'tenant');
 
       // 導向模擬登入路由
       return redirect("{$tenant->id}/impersonate/{$token->token}");
