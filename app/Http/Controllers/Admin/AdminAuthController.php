@@ -13,6 +13,10 @@ class AdminAuthController extends Controller
    */
   function index()
   {
+    if (Auth::guard('web')->check()) {
+      return redirect()->route('admin.dashboard.index');
+    }
+
     return view('content.admin.admin-login', [
       'pageConfigs' => ['myLayout' => 'blank']
     ]);
