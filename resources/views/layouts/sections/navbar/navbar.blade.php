@@ -64,8 +64,10 @@
                             </div>
                             <div class="flex-grow-1">
                                 <span class="fw-medium d-block">
-                                    @if (Auth::check())
-                                        {{ Auth::user()->name }}
+                                    @if (Auth::guard('tenant')->check() && tenant())
+                                        {{ auth('tenant')->user()->name }}
+                                    @elseif (Auth::guard('web')->check())
+                                        {{ auth('web')->user()->name }}
                                     @endif
                                 </span>
                             </div>

@@ -13,6 +13,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    use \Illuminate\Database\Eloquent\SoftDeletes;
+
     // 單庫租用, 租戶
     use BelongsToTenant;
 
@@ -26,6 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'parameter',
     ];
 
     /**
@@ -46,5 +49,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'parameter' => 'array',
     ];
 }

@@ -33,6 +33,7 @@ class tenantService
               'name'      => $attributes['name'] . '管理員',
               'email'     => $attributes['email'],
               'password'  => Hash::make($attributes['password']),
+              'parameter' => ['isAdmin' => true]
             ]);
           });
 

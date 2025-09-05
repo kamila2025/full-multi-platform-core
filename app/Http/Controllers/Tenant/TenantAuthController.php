@@ -16,6 +16,10 @@ class TenantAuthController extends Controller
   {
       $tenant = Tenant::findOrFail(tenant('id'));
 
+      if (Auth::guard('tenant')->check()) {
+        return redirect()->route('tenant.dashboard.index', ['tenant' => tenant('id')]);
+      }
+
       return view('content.tenant.tenant-login', [
         'tenant'      => $tenant,
         'pageConfigs' => ['myLayout' => 'blank'],

@@ -49,6 +49,9 @@ Route::group([
       Route::middleware(['auth.tenant'])->group(function () {
           Route::get('/', [\App\Http\Controllers\Tenant\TenantDashboardController::class, 'index'])->name('tenant.dashboard.index');
           Route::get('/dashboard', [\App\Http\Controllers\Tenant\TenantDashboardController::class, 'index'])->name('tenant.dashboard.index');
+
+          // 員工管理
+          Route::resource('users', \App\Http\Controllers\Tenant\TenantUserController::class)->names('tenant.users');
       });
     });
 });
