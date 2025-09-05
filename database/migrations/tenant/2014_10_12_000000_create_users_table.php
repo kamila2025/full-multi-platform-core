@@ -21,6 +21,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->text('parameter')->nullable()->comment('額外參數');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

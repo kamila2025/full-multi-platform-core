@@ -7,10 +7,10 @@
       "slug": "tenant.dashboard.index"
     },
     {
-      "url": "admin/members",
-      "icon": "menu-icon tf-icons bx bxs-business",
-      "name": "會員管理",
-      "slug": "tenant.members.index"
+      "url": "admin/users",
+      "icon": "menu-icon tf-icons bx bxs-user",
+      "name": "員工管理",
+      "slug": "tenant.users.index"
     }
   ]
 }
