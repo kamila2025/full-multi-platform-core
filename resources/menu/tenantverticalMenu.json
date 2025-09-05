@@ -4,13 +4,13 @@
       "url": "admin/dashboard",
       "name": "主控台",
       "icon": "menu-icon tf-icons bx bx-home-circle",
-      "slug": "admin.dashboard.index"
+      "slug": "tenant.dashboard.index"
     },
     {
-      "url": "admin/tenants",
+      "url": "admin/members",
       "icon": "menu-icon tf-icons bx bxs-business",
-      "name": "租戶管理",
-      "slug": "admin.tenants.index"
+      "name": "會員管理",
+      "slug": "tenant.members.index"
     }
   ]
 }

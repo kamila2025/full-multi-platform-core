@@ -13,14 +13,6 @@
 <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
 <script src="{{ asset('assets/js/config.js') }}"></script>
 
-<!-- sweetalert2 -->
-<script src="{{ asset('assets/vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
-<!-- /sweetalert2 -->
-
-<!-- axios -->
-<script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js"></script>
-<!-- /axios -->
-
 @if ($configData['hasCustomizer'])
 <script>
     window.templateCustomizer = new TemplateCustomizer({

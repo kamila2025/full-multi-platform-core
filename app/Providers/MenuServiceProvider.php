@@ -19,12 +19,18 @@ class MenuServiceProvider extends ServiceProvider
    */
   public function boot(): void
   {
-    $verticalMenuJson = file_get_contents(base_path('resources/menu/verticalMenu.json'));
-    $verticalMenuData = json_decode($verticalMenuJson);
-    $horizontalMenuJson = file_get_contents(base_path('resources/menu/horizontalMenu.json'));
-    $horizontalMenuData = json_decode($horizontalMenuJson);
+    \View::composer('*', function ($view) {
+      if (tenant()) {
+        // 租戶環境 menu
+        $verticalMenuJson = file_get_contents(base_path('resources/menu/tenantverticalMenu.json'));
+      } else {
+        // 中央環境 menu
+        $verticalMenuJson = file_get_contents(base_path('resources/menu/verticalMenu.json'));
+      }
 
-    // Share all menuData to all the views
-    \View::share('menuData', [$verticalMenuData, $horizontalMenuData]);
+      $verticalMenuData = json_decode($verticalMenuJson);
+
+      $view->with('menuData', [$verticalMenuData]);
+    });
   }
 }

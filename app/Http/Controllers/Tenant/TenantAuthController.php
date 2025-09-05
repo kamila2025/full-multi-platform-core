@@ -1,25 +1,29 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Tenant;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Tenant;
 
-class AdminAuthController extends Controller
+class TenantAuthController extends Controller
 {
   /**
-   * 登入頁面
+   * 租戶登入頁面
    */
   function index()
   {
-    return view('content.admin.admin-login', [
-      'pageConfigs' => ['myLayout' => 'blank']
-    ]);
+      $tenant = Tenant::findOrFail(tenant('id'));
+
+      return view('content.tenant.tenant-login', [
+        'tenant'      => $tenant,
+        'pageConfigs' => ['myLayout' => 'blank'],
+      ]);
   }
 
   /**
-   * 登入
+   * 租戶登入
    */
   function login(Request $request)
   {
@@ -34,10 +38,12 @@ class AdminAuthController extends Controller
           'password'  => '密碼',
       ]);
 
-      if (Auth::attempt($attributes)) {
+      if (Auth::guard('tenant')->attempt($attributes)) {
           $request->session()->regenerate();
 
-          return $this->successResponse('登入成功', ['redirect_url' => route('admin.dashboard.index')], 200);
+          $tenantId = tenant('id');
+
+          return $this->successResponse('登入成功', ['redirect_url' => route('tenant.dashboard.index', ['tenant' => $tenantId])], 200);
       }
 
       return $this->errorResponse('帳號或密碼錯誤', null, 401);
@@ -47,12 +53,14 @@ class AdminAuthController extends Controller
   }
 
   /**
-   * 登出
+   * 租戶登出
    */
   function logout()
   {
-    Auth::guard('web')->logout();
+    $tenantId = tenant('id');
 
-    return redirect()->route('admin.login.index');
+    Auth::guard('tenant')->logout();
+
+    return redirect(route('tenant.login.index', ['tenant' => $tenantId]));
   }
 }

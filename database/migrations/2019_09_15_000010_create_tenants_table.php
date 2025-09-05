@@ -19,9 +19,11 @@ class CreateTenantsTable extends Migration
             $table->string('id')->primary();
 
             // your custom columns may go here
-
+            $table->string('name')->comment('租戶名稱');
+            $table->integer('sort')->default(0)->comment('排序');
+            $table->unsignedBigInteger('user_id')->comment('人員');
+            $table->json('data')->nullable()->comment('租戶資料');
             $table->timestamps();
-            $table->json('data')->nullable();
         });
     }
 

@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Tenant;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class AdminDashboardController extends Controller
+class TenantDashboardController extends Controller
 {
   /**
    * 主控台頁面
    */
   function index()
   {
-      return view('content.admin.admin-dashboard');
+      return view('content.tenant.tenant-dashboard');
   }
 }

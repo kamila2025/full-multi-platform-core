@@ -75,17 +75,29 @@
                 <li>
                     <div class="dropdown-divider"></div>
                 </li>
-                @if (Auth::check())
+                @if (Auth::guard('tenant')->check() && tenant())
+                    <li>
+                        <a class="dropdown-item" href="{{ route('tenant.logout', ['tenant' => tenant('id')]) }}"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class='bx bx-power-off me-2'></i>
+                            <span class="align-middle">登出</span>
+                        </a>
+                        <form method="POST" id="logout-form"
+                            action="{{ route('tenant.logout', ['tenant' => tenant('id')]) }}">
+                            @csrf
+                        </form>
+                    </li>
+                @elseif (Auth::guard('web')->check())
                     <li>
                         <a class="dropdown-item" href="{{ route('admin.logout') }}"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class='bx bx-power-off me-2'></i>
                             <span class="align-middle">登出</span>
                         </a>
+                        <form method="POST" id="logout-form" action="{{ route('admin.logout') }}">
+                            @csrf
+                        </form>
                     </li>
-                    <form method="POST" id="logout-form" action="{{ route('admin.logout') }}">
-                        @csrf
-                    </form>
                 @endif
             </ul>
         </li>

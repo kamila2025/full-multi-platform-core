@@ -5,8 +5,8 @@ $(function () {
     }
   });
 
-  const adminLoginForm = $('#AdminLoginForm');
-  const fv = FormValidation.formValidation(adminLoginForm[0], {
+  const tenantLoginForm = $('#tenantLoginForm');
+  const fv = FormValidation.formValidation(tenantLoginForm[0], {
     fields: {
       email: {
         validators: {
@@ -53,7 +53,7 @@ $(function () {
     fv.validate().then(function (status) {
       if (status === 'Valid') {
         // 獲取表單數據
-        const formData = new FormData(adminLoginForm[0]);
+        const formData = new FormData(tenantLoginForm[0]);
         const formObject = Object.fromEntries(formData.entries());
 
         Swal.fire({
@@ -66,49 +66,31 @@ $(function () {
         });
 
         // 發送axios請求
-        console.log('發送登入請求:', {
-          email: formObject.email,
-          timestamp: new Date().toISOString(),
-          url: '/admin/login'
-        });
-
         axios
-          .post('/admin/login', formObject)
+          .post(`/${tenant}/admin/login`, formObject)
           .then(function (response) {
             // 關閉載入視窗
             Swal.close();
 
-            console.log('登入回應:', {
-              success: response.data.success,
-              message: response.data.message,
-              redirect_url: response.data.data?.redirect_url,
-              timestamp: new Date().toISOString()
-            });
-
             if (response.data.success) {
               // 登入成功
-              console.log('登入成功，準備跳轉:', response.data.data.redirect_url);
-
               Swal.fire({
                 icon: 'success',
                 title: '登入成功！',
-                text: '正在跳轉到管理後台...',
+                text: '正在跳轉到後台...',
                 timer: 1500,
                 timerProgressBar: true,
                 showConfirmButton: false,
                 allowOutsideClick: false
               }).then(function () {
-                console.log('執行跳轉到:', response.data.data.redirect_url);
                 window.location.href = response.data.data.redirect_url;
               });
             } else {
               // 登入失敗
-              console.log('登入失敗:', response.data.message);
-
               Swal.fire({
                 icon: 'error',
                 title: '登入失敗',
-                text: response.data.message || '請檢查您的帳號密碼',
+                text: response.data.message,
                 confirmButtonText: '確定'
               });
             }
@@ -117,17 +99,10 @@ $(function () {
             // 關閉載入視窗
             Swal.close();
 
-            console.error('登入請求錯誤:', {
-              status: error.response?.status,
-              message: error.response?.data?.message || error.message,
-              data: error.response?.data,
-              timestamp: new Date().toISOString()
-            });
-
             Swal.fire({
               icon: 'error',
               title: '登入失敗',
-              text: error.response?.data?.message || '登入時發生錯誤',
+              text: error.response.data.message,
               confirmButtonText: '確定'
             });
           });
