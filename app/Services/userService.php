@@ -26,6 +26,10 @@ class userService
             'password'  => Hash::make($attributes['password']),
           ]);
 
+          if (!empty($attributes['role'])) {
+            $user->assignRole($attributes['role']);
+          }
+
           DB::commit();
 
           return $user;
@@ -56,6 +60,12 @@ class userService
             }
 
             $user->update($updateData);
+
+            if (!empty($attributes['role'])) {
+              $user->syncRoles([$attributes['role']]);
+            } else {
+              $user->syncRoles([]);
+            }
 
             DB::commit();
 

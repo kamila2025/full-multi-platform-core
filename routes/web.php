@@ -52,6 +52,10 @@ Route::group([
 
           // 員工管理
           Route::resource('users', \App\Http\Controllers\Tenant\TenantUserController::class)->names('tenant.users');
+          Route::get('users/role/{roleName}/permissions', [\App\Http\Controllers\Tenant\TenantUserController::class, 'getRolePermissions'])->name('tenant.users.role.permissions');
+
+          // 角色管理
+          Route::resource('roles', \App\Http\Controllers\Tenant\TenantRoleController::class)->names('tenant.roles');
       });
     });
 });
