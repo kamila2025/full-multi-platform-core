@@ -7,13 +7,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    use HasRoles;
+
     use \Illuminate\Database\Eloquent\SoftDeletes;
+
+    /**
+     * 指定權限系統使用的 guard
+     */
+    protected $guard_name = 'tenant';
 
     // 單庫租用, 租戶
     use BelongsToTenant;

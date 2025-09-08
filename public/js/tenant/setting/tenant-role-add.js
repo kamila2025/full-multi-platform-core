@@ -5,74 +5,18 @@ $(function () {
     }
   });
 
-  const apiUrl = '/admin/tenants';
-  const admintenantForm = $('#adminTenantForm');
+  const apiUrl = `/${tenant}/admin/roles`;
+  const roleForm = $('#roleForm');
 
-  const tenantId = $('#tenant_id').val();
-  const isEdit = tenantId !== '';
+  const roleId = $('#role_id').val();
+  const isEdit = roleId !== '';
 
-  // 判斷是否為編輯
-  const passwordValidators = isEdit
-    ? {
-        stringLength: {
-          min: 5,
-          message: '租戶密碼至少需要5個字元'
-        }
-      }
-    : {
-        notEmpty: {
-          message: '請輸入租戶密碼'
-        },
-        stringLength: {
-          min: 5,
-          message: '租戶密碼至少需要5個字元'
-        }
-      };
-
-  const fv = FormValidation.formValidation(admintenantForm[0], {
+  const fv = FormValidation.formValidation(roleForm[0], {
     fields: {
-      id: {
-        validators: {
-          notEmpty: {
-            message: '請輸入租戶ID'
-          }
-        }
-      },
       name: {
         validators: {
           notEmpty: {
-            message: '請輸入租戶名稱'
-          }
-        }
-      },
-      email: {
-        validators: {
-          notEmpty: {
-            message: '請輸入租戶信箱'
-          },
-          emailAddress: {
-            message: '請輸入有效的信箱'
-          }
-        }
-      },
-      password: {
-        validators: passwordValidators
-      },
-      expire_date: {
-        validators: {
-          notEmpty: {
-            message: '請選擇租戶到期時間'
-          },
-          date: {
-            format: 'YYYY-MM-DD',
-            message: '請選擇有效的日期'
-          }
-        }
-      },
-      status: {
-        validators: {
-          notEmpty: {
-            message: '請選擇租戶狀態'
+            message: '請輸入角色名稱'
           }
         }
       }
@@ -98,8 +42,14 @@ $(function () {
 
     fv.validate().then(function (status) {
       if (status === 'Valid') {
-        const formData = new FormData(admintenantForm[0]);
+        const formData = new FormData(roleForm[0]);
         const formObject = Object.fromEntries(formData.entries());
+
+        const selectedPermissions = [];
+        $('.permission-checkbox:checked').each(function () {
+          selectedPermissions.push($(this).val());
+        });
+        formObject.permissions = selectedPermissions;
 
         Swal.fire({
           title: '儲存中...',
@@ -110,12 +60,8 @@ $(function () {
           }
         });
 
-        const url = isEdit ? `${apiUrl}/${tenantId}` : apiUrl;
+        const url = isEdit ? `${apiUrl}/${roleId}` : apiUrl;
         const method = isEdit ? 'PUT' : 'POST';
-
-        if (isEdit && !formObject.password) {
-          delete formObject.password;
-        }
 
         axios({
           method: method,
@@ -129,7 +75,7 @@ $(function () {
               Swal.fire({
                 icon: 'success',
                 title: '儲存成功！',
-                text: '正在跳轉到租戶管理頁面...',
+                text: '正在跳轉到角色管理頁面...',
                 timer: 1500,
                 timerProgressBar: true,
                 showConfirmButton: false,
@@ -183,7 +129,7 @@ $(function () {
         });
 
         axios
-          .delete(`${apiUrl}/${tenantId}`)
+          .delete(`${apiUrl}/${roleId}`)
           .then(function (response) {
             Swal.close();
 
@@ -191,7 +137,7 @@ $(function () {
               Swal.fire({
                 icon: 'success',
                 title: '刪除成功',
-                text: '正在跳轉到租戶管理頁面...',
+                text: '正在跳轉到角色管理頁面...',
                 timer: 1500,
                 timerProgressBar: true,
                 showConfirmButton: false,
