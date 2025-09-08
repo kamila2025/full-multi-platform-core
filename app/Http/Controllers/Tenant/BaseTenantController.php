@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Enums\Tenant\PermissionNameEnum;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 abstract class BaseTenantController extends Controller
@@ -13,7 +14,7 @@ abstract class BaseTenantController extends Controller
      */
     protected function authorizePermission(PermissionNameEnum $permission): void
     {
-        Gate::forUser(auth()->user())->authorize($permission->value);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize($permission->value);
     }
 
     /**
@@ -21,7 +22,7 @@ abstract class BaseTenantController extends Controller
      */
     protected function hasPermission(PermissionNameEnum $permission): bool
     {
-        return auth()->user()->can($permission->value);
+        return Auth::guard('tenant')->user()->can($permission->value);
     }
 
     /**
@@ -29,6 +30,6 @@ abstract class BaseTenantController extends Controller
      */
     protected function hasRole(string $role): bool
     {
-        return auth()->user()->hasRole($role);
+        return Auth::guard('tenant')->user()->hasRole($role);
     }
 }

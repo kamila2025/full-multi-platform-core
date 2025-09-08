@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
+use Illuminate\Support\Facades\Artisan;
 
 class TenantAuthController extends Controller
 {
@@ -62,6 +63,8 @@ class TenantAuthController extends Controller
   function logout()
   {
     $tenantId = tenant('id');
+
+    Artisan::call('permission:cache-reset');
 
     Auth::guard('tenant')->logout();
 

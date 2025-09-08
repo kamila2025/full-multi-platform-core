@@ -37,6 +37,7 @@ class TenantPermissionSeeder extends Seeder
             'admin' => [
                 'name' => '管理員',
                 'permissions' => [
+                    'manage',
                     'settings.interface',
                     'users',
                     'roles',

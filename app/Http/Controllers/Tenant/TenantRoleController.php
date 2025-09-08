@@ -6,6 +6,7 @@ use App\Enums\Tenant\PermissionNameEnum;
 use Illuminate\Http\Request;
 use App\Models\Spatie\Role;
 use App\Models\Spatie\Permission;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class TenantRoleController extends BaseTenantController
@@ -15,7 +16,7 @@ class TenantRoleController extends BaseTenantController
    */
   public function index(Request $request)
   {
-    //$this->authorizePermission(PermissionNameEnum::角色管理);
+    $this->authorizePermission(PermissionNameEnum::角色管理);
 
     if ($request->ajax()) {
       $records = Role::latest()->get();
@@ -35,7 +36,7 @@ class TenantRoleController extends BaseTenantController
    */
   public function create()
   {
-    //$this->authorizePermission(PermissionNameEnum::角色管理);
+    $this->authorizePermission(PermissionNameEnum::角色管理);
 
     return view('content.tenant.setting.tenant-role-add', [
       'permissions' => Permission::all(),
@@ -47,7 +48,7 @@ class TenantRoleController extends BaseTenantController
    */
   public function store(Request $request)
   {
-    //$this->authorizePermission(PermissionNameEnum::角色管理);
+    $this->authorizePermission(PermissionNameEnum::角色管理);
 
     try {
       $attributes = $request->validate([
@@ -79,7 +80,7 @@ class TenantRoleController extends BaseTenantController
    */
   public function show($id)
   {
-    //$this->authorizePermission(PermissionNameEnum::角色管理);
+    $this->authorizePermission(PermissionNameEnum::角色管理);
 
     $role = Role::findOrFail($id);
 
@@ -91,7 +92,7 @@ class TenantRoleController extends BaseTenantController
    */
   public function edit($id)
   {
-    //$this->authorizePermission(PermissionNameEnum::角色管理);
+    $this->authorizePermission(PermissionNameEnum::角色管理);
 
     $role = Role::findOrFail($id);
 
@@ -106,7 +107,7 @@ class TenantRoleController extends BaseTenantController
    */
   public function update(Request $request, $id)
   {
-    //$this->authorizePermission(PermissionNameEnum::角色管理);
+    $this->authorizePermission(PermissionNameEnum::角色管理);
 
     try {
       $attributes = $request->validate([
@@ -141,7 +142,7 @@ class TenantRoleController extends BaseTenantController
    */
   public function destroy($id)
   {
-    //$this->authorizePermission(PermissionNameEnum::角色管理);
+    $this->authorizePermission(PermissionNameEnum::角色管理);
 
     try {
       $role = Role::findOrFail($id);
