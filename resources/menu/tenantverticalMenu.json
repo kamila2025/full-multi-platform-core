@@ -7,6 +7,23 @@
       "slug": "tenant.dashboard.index"
     },
     {
+      "name": "商品管理",
+      "icon": "menu-icon tf-icons bx bxs-purchase-tag",
+      "slug": "products",
+      "submenu": [
+        {
+          "url": "admin/categories",
+          "name": "商品分類",
+          "slug": "tenant.categories.index"
+        },
+        {
+          "url": "admin/products",
+          "name": "商品管理",
+          "slug": "tenant.products.index"
+        }
+      ]
+    },
+    {
       "menuHeader": "系統設定"
     },
     {

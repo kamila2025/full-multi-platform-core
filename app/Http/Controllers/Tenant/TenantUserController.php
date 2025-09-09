@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Enums\Tenant\PermissionNameEnum;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Services\userService;
+use App\Services\Tenant\userService;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
@@ -29,12 +29,12 @@ class TenantUserController extends BaseTenantController
     if ($request->ajax()) {
       $records = User::latest()->get();
 
-    return DataTables::of($records)
-      ->addColumn('user_name',       fn($record) => $record->name)
-      ->addColumn('user_email',      fn($record) => $record->email)
-      ->addColumn('user_created_at', fn($record) => $record->created_at->format('Y-m-d H:i:s'))
-      ->addColumn('user_isAdmin',    fn($record) => $record->parameter['isAdmin'] ?? false)
-      ->make(true);
+      return DataTables::of($records)
+        ->addColumn('user_name',       fn($record) => $record->name)
+        ->addColumn('user_email',      fn($record) => $record->email)
+        ->addColumn('user_created_at', fn($record) => $record->created_at->format('Y-m-d H:i:s'))
+        ->addColumn('user_isAdmin',    fn($record) => $record->parameter['isAdmin'] ?? false)
+        ->make(true);
     }
 
     return view('content.tenant.setting.tenant-user');

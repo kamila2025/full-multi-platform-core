@@ -50,6 +50,12 @@ Route::group([
           Route::get('/', [\App\Http\Controllers\Tenant\TenantDashboardController::class, 'index'])->name('tenant.dashboard.index');
           Route::get('/dashboard', [\App\Http\Controllers\Tenant\TenantDashboardController::class, 'index'])->name('tenant.dashboard.index');
 
+          // 商品管理
+          Route::post('categories/sort', [\App\Http\Controllers\Tenant\TenantCategoryController::class, 'updateSort'])->name('tenant.categories.sort');
+          Route::get('categories/tree', [\App\Http\Controllers\Tenant\TenantCategoryController::class, 'getCategoryTree'])->name('tenant.categories.tree');
+          Route::resource('categories', \App\Http\Controllers\Tenant\TenantCategoryController::class)->names('tenant.categories');
+          Route::resource('products', \App\Http\Controllers\Tenant\TenantProductController::class)->names('tenant.products');
+
           // 員工管理
           Route::resource('users', \App\Http\Controllers\Tenant\TenantUserController::class)->names('tenant.users');
           Route::get('users/role/{roleName}/permissions', [\App\Http\Controllers\Tenant\TenantUserController::class, 'getRolePermissions'])->name('tenant.users.role.permissions');

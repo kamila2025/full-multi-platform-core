@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Services\tenantService;
+use App\Services\Admin\tenantService;
 use Yajra\DataTables\Facades\DataTables;
 
 class AdminTenantController extends Controller

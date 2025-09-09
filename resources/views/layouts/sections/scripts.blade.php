@@ -13,6 +13,7 @@
 
 <!-- sweetalert2 -->
 <script src="{{ asset('assets/vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
+<script src="{{ asset('js/sweetalert.js') }}"></script>
 <!-- /sweetalert2 -->
 
 <!-- axios -->
