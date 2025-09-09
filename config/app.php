@@ -171,6 +171,7 @@ return [
     App\Providers\RouteServiceProvider::class,
     App\Providers\MenuServiceProvider::class,
     App\Providers\TenancyServiceProvider::class,
+    Prettus\Repository\Providers\RepositoryServiceProvider::class,
   ])->toArray(),
 
   /*
