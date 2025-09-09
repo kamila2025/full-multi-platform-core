@@ -91,6 +91,7 @@ $(function () {
                   : '<span class="me-4"></span>'
               }
               <strong>${n.name}</strong>
+              <span>指定商品：${n.product_count}</span>
               <span class="badge ${n.status_badge}">${n.status_name}</span>
             </div>
             <div class="d-flex align-items-center gap-2">

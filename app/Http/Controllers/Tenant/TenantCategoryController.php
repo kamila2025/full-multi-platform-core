@@ -123,6 +123,7 @@ class TenantCategoryController extends BaseTenantController
         'sort'          => $category->sort,
         'status_name'   => $category->status->name,
         'status_badge'  => $category->status->badgeClass(),
+        'product_count' => $category->products->count(),
       ];
     });
 
