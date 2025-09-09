@@ -1,6 +1,11 @@
 <ul class="menu-sub">
     @if (isset($menu))
         @foreach ($menu as $submenu)
+            {{-- 檢查子選單權限 --}}
+            @if (!Helper::shouldShowMenuItem($submenu))
+                @continue
+            @endif
+
             {{-- active menu method --}}
             @php
                 $activeClass = null;

@@ -24,26 +24,43 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-        @foreach ($menuData[0]->menu as $menu)
-            {{-- adding active and open class if child is active --}}
+        @if (isset($menuData[0]) && isset($menuData[0]->menu))
+            @foreach ($menuData[0]->menu as $menu)
+                {{-- adding active and open class if child is active --}}
 
-            {{-- menu headers --}}
-            @if (isset($menu->menuHeader))
-                <li class="menu-header small text-uppercase">
-                    <span class="menu-header-text">{{ __($menu->menuHeader) }}</span>
-                </li>
-            @else
-                {{-- active menu method --}}
-                @php
-                    $activeClass = null;
-                    $currentRouteName = Route::currentRouteName();
+                {{-- 檢查選單權限 --}}
+                @if (!Helper::shouldShowMenuItem($menu))
+                    @continue
+                @endif
 
-                    if ($currentRouteName === $menu->slug) {
-                        $activeClass = 'active';
-                    } elseif (isset($menu->submenu)) {
-                        if (gettype($menu->slug) === 'array') {
-                            foreach ($menu->slug as $slug) {
-                                if (str_contains($currentRouteName, $slug) and strpos($currentRouteName, $slug) === 0) {
+                {{-- menu headers --}}
+                @if (isset($menu->menuHeader))
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">{{ __($menu->menuHeader) }}</span>
+                    </li>
+                @else
+                    {{-- active menu method --}}
+                    @php
+                        $activeClass = null;
+                        $currentRouteName = Route::currentRouteName();
+
+                        if ($currentRouteName === $menu->slug) {
+                            $activeClass = 'active';
+                        } elseif (isset($menu->submenu)) {
+                            if (gettype($menu->slug) === 'array') {
+                                foreach ($menu->slug as $slug) {
+                                    if (
+                                        str_contains($currentRouteName, $slug) and
+                                        strpos($currentRouteName, $slug) === 0
+                                    ) {
+                                        $activeClass = 'active open';
+                                    }
+                                }
+                            } else {
+                                if (
+                                    str_contains($currentRouteName, $menu->slug) and
+                                    strpos($currentRouteName, $menu->slug) === 0
+                                ) {
                                     $activeClass = 'active open';
                                 }
                             }
@@ -61,30 +78,38 @@
                                 }
                             }
                         }
-                    }
-                @endphp
+                    @endphp
 
-                {{-- main menu --}}
-                <li class="menu-item {{ $activeClass }}">
-                    <a href="{{ isset($menu->url) ? url($tenant . $menu->url) : 'javascript:void(0);' }}"
-                        class="{{ isset($menu->submenu) ? 'menu-link menu-toggle' : 'menu-link' }}"
-                        @if (isset($menu->target) and !empty($menu->target)) target="_blank" @endif>
-                        @isset($menu->icon)
-                            <i class="{{ $menu->icon }}"></i>
-                        @endisset
-                        <div class="text-truncate">{{ isset($menu->name) ? __($menu->name) : '' }}</div>
-                        @isset($menu->badge)
-                            <div class="badge bg-{{ $menu->badge[0] }} rounded-pill ms-auto">{{ $menu->badge[1] }}</div>
-                        @endisset
-                    </a>
+                    {{-- main menu --}}
+                    <li class="menu-item {{ $activeClass }}">
+                        <a href="{{ isset($menu->url) ? url($tenant . $menu->url) : 'javascript:void(0);' }}"
+                            class="{{ isset($menu->submenu) ? 'menu-link menu-toggle' : 'menu-link' }}"
+                            @if (isset($menu->target) and !empty($menu->target)) target="_blank" @endif>
+                            @isset($menu->icon)
+                                <i class="{{ $menu->icon }}"></i>
+                            @endisset
+                            <div class="text-truncate">{{ isset($menu->name) ? __($menu->name) : '' }}</div>
+                            @isset($menu->badge)
+                                <div class="badge bg-{{ $menu->badge[0] }} rounded-pill ms-auto">{{ $menu->badge[1] }}</div>
+                            @endisset
+                        </a>
 
-                    {{-- submenu --}}
-                    @isset($menu->submenu)
-                        @include('layouts.sections.menu.submenu', ['menu' => $menu->submenu])
-                    @endisset
-                </li>
-            @endif
-        @endforeach
+                        {{-- submenu --}}
+                        @isset($menu->submenu)
+                            @include('layouts.sections.menu.submenu', ['menu' => $menu->submenu])
+                        @endisset
+                    </li>
+                @endif
+            @endforeach
+        @else
+            {{-- 如果選單資料載入失敗，顯示錯誤訊息 --}}
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-error"></i>
+                    <div class="text-truncate">選單載入失敗</div>
+                </a>
+            </li>
+        @endif
     </ul>
 
 </aside>

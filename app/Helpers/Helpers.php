@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use Config;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class Helpers
 {
@@ -201,5 +202,64 @@ class Helpers
         }
       }
     }
+  }
+
+  /**
+   * 檢查使用者是否有選單權限
+   */
+  public static function hasMenuPermission($permission): bool
+  {
+    if (!$permission) {
+      return true; // 如果沒有設定權限，則顯示選單
+    }
+
+    $user = Auth::guard('tenant')->user();
+
+    if (!$user) {
+      return false; // 如果使用者未登入，則不顯示選單
+    }
+
+    // 檢查是否有所有權限
+    if ($user->can('manage')) {
+      return true;
+    }
+
+    // 檢查特定權限
+    return $user->can($permission);
+  }
+
+  /**
+   * 檢查選單項目是否應該顯示
+   */
+  public static function shouldShowMenuItem($menuItem): bool
+  {
+    // 如果是選單標題，檢查是否有權限
+    if (isset($menuItem->menuHeader)) {
+      if (isset($menuItem->permission)) {
+        return self::hasMenuPermission($menuItem->permission);
+      }
+      return true; // 沒有權限設定的標題直接顯示
+    }
+
+    // 檢查主選單權限
+    if (isset($menuItem->permission)) {
+      if (!self::hasMenuPermission($menuItem->permission)) {
+        return false;
+      }
+    }
+
+    // 如果有子選單，檢查是否有任何子選單項目有權限
+    if (isset($menuItem->submenu)) {
+      $hasVisibleSubmenu = false;
+      foreach ($menuItem->submenu as $submenu) {
+        if (self::shouldShowMenuItem($submenu)) {
+          $hasVisibleSubmenu = true;
+          break;
+        }
+      }
+      return $hasVisibleSubmenu;
+    }
+
+    return true;
   }
 }
