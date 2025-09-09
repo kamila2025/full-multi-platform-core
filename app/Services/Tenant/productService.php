@@ -3,8 +3,11 @@
 namespace App\Services\Tenant;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Repositories\ProductRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class productService
 {
@@ -33,6 +36,10 @@ class productService
 
           if (isset($attributes['categories'])) {
             $product->categories()->sync($attributes['categories']);
+          }
+
+          if (isset($attributes['images'])) {
+            $this->handleImageUpload($product, $attributes['images']);
           }
 
           DB::commit();
@@ -69,6 +76,10 @@ class productService
               $product->categories()->sync($attributes['categories']);
             }
 
+            if (isset($attributes['images'])) {
+              $this->handleImageUpload($product, $attributes['images']);
+            }
+
             DB::commit();
 
             return $product;
@@ -97,5 +108,83 @@ class productService
 
             throw $e;
         }
+    }
+
+    /**
+     * 處理圖片上傳
+     */
+    private function handleImageUpload(Product $product, array $images): void
+    {
+        $tenantId = tenant('id');
+
+        foreach ($images as $originalImageData) {
+            // 解析 base64 資料
+            $parsedImageData = $this->parseBase64Image($originalImageData['data']);
+            $extension = $this->getExtensionFromMimeType($parsedImageData['mime_type']);
+
+            // 產生唯一檔名
+            $filename = Str::uuid() . '.' . $extension;
+
+            // 儲存路徑
+            $storagePath = "tenants/{$tenantId}/products/{$filename}";
+            $dbPath = "products/{$filename}";
+
+            // 儲存到 public disk
+            Storage::disk('public')->put($storagePath, $parsedImageData['data']);
+
+            // 建立圖片記錄
+            ProductImage::create([
+                'product_id'  => $product->id,
+                'filename'    => $filename,
+                'path'        => $dbPath,
+                'url'         => $dbPath,
+                'size'        => $originalImageData['size'],
+            ]);
+
+        }
+
+        $firstImage = ProductImage::where('product_id', $product->id)
+            ->orderBy('sort')
+            ->first();
+
+        if ($firstImage) {
+            $product->update([
+                'image_url' => $firstImage->url
+            ]);
+        }
+    }
+
+    /**
+     * 解析 base64 圖片資料
+     */
+    private function parseBase64Image(string $base64Data): array
+    {
+        // 檢查 base64 格式
+        if (preg_match('/^data:([^;]+);base64,(.+)$/', $base64Data, $matches)) {
+            $mimeType = $matches[1];
+            $data = base64_decode($matches[2]);
+
+            return [
+                'mime_type' => $mimeType,
+                'data'      => $data
+            ];
+        }
+
+        throw new \InvalidArgumentException('Invalid base64 image format');
+    }
+
+    /**
+     * 從 MIME type 取得副檔名
+     */
+    private function getExtensionFromMimeType(string $mimeType): string
+    {
+        $extensions = [
+            'image/jpeg'  => 'jpg',
+            'image/png'   => 'png',
+            'image/gif'   => 'gif',
+            'image/webp'  => 'webp',
+        ];
+
+        return $extensions[$mimeType] ?? 'jpg';
     }
 }

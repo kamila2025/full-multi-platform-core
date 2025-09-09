@@ -18,6 +18,11 @@ class Product extends Model
         return $this->belongsToMany(Category::class, 'category_has_product');
     }
 
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort');
+    }
+
     protected static function booted()
     {
         static::creating(function (Model $model) {

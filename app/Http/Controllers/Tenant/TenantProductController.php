@@ -6,6 +6,7 @@ use App\Enums\Tenant\PermissionNameEnum;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Repositories\ProductRepository;
 use App\Services\Tenant\productService;
 use Yajra\DataTables\Facades\DataTables;
@@ -33,7 +34,7 @@ class TenantProductController extends BaseTenantController
 
       return DataTables::of($records)
         ->addColumn('name',                   fn($record) => $record->name)
-        ->addColumn('image_url',              fn($record) => $record->image_url)
+        ->addColumn('image_url',              fn($record) => $record->image_url ? asset('storage/tenants/' . tenant('id') . '/' . $record->image_url) : null)
         ->addColumn('categories',             fn($record) => $record->categories->pluck('name')->toArray())
         ->addColumn('inventory_management',   fn($record) => 0)
         ->addColumn('status_name',            fn($record) => $record->status->name)
@@ -71,16 +72,30 @@ class TenantProductController extends BaseTenantController
         'image_url'             => 'nullable|string|max:255',
         'inventory_management'  => 'nullable|string|max:255',
         'status'                => 'required|string|max:255',
+
         'categories'            => 'nullable|array',
         'categories.*'          => 'integer|exists:categories,id',
+
+        'images'                => 'nullable|array',
+        'images.*.name'         => 'required|string|max:255',
+        'images.*.type'         => 'required|string|in:image/jpeg,image/png,image/jpg,image/gif',
+        'images.*.size'         => 'required|integer|max:10485760',
+        'images.*.data'         => 'required|string',
       ],[],[
         'name'                  => '商品名稱',
         'description'           => '商品描述',
         'image_url'             => '商品圖片',
         'inventory_management'  => '庫存管理方式',
         'status'                => '狀態',
+
         'categories'            => '商品分類',
         'categories.*'          => '商品分類',
+
+        'images'                => '商品圖片',
+        'images.*.name'         => '圖片檔名',
+        'images.*.type'         => '圖片格式',
+        'images.*.size'         => '圖片大小',
+        'images.*.data'         => '圖片資料',
       ]);
 
       $product = $this->productService->createProduct($attributes);
@@ -132,16 +147,30 @@ class TenantProductController extends BaseTenantController
         'image_url'             => 'nullable|string|max:255',
         'status'                => 'required|string|max:255',
         'inventory_management'  => 'nullable|string|max:255',
+
         'categories'            => 'nullable|array',
         'categories.*'          => 'integer|exists:categories,id',
+
+        'images'                => 'nullable|array',
+        'images.*.name'         => 'required|string|max:255',
+        'images.*.type'         => 'required|string|in:image/jpeg,image/png,image/jpg,image/gif',
+        'images.*.size'         => 'required|integer|max:10485760',
+        'images.*.data'         => 'required|string',
       ],[],[
         'name'                  => '商品名稱',
         'description'           => '商品描述',
         'image_url'             => '商品圖片',
         'status'                => '狀態',
         'inventory_management'  => '庫存管理方式',
+
         'categories'            => '商品分類',
         'categories.*'          => '商品分類',
+
+        'images'                => '商品圖片',
+        'images.*.name'         => '圖片檔名',
+        'images.*.type'         => '圖片格式',
+        'images.*.size'         => '圖片大小',
+        'images.*.data'         => '圖片資料',
       ]);
 
       $product = $this->productService->updateProduct($id, $attributes);
@@ -165,6 +194,37 @@ class TenantProductController extends BaseTenantController
       return $this->successResponse('商品刪除成功', ['redirect_url' => route('tenant.products.index', ['tenant' => tenant('id')])], 200);
     } catch (\Throwable $e) {
       return $this->errorResponse('商品刪除失敗，請聯絡管理者', 500);
+    }
+  }
+
+  /**
+   * 刪除商品圖片
+   */
+  public function destroyImage($id)
+  {
+    $this->authorizePermission(PermissionNameEnum::商品管理);
+
+    try {
+      $image = ProductImage::findOrFail($id);
+
+      $product = $image->product;
+
+      $image->delete();
+
+      $product->load('images');
+
+      // 檢查是否還有其他圖片
+      if ($product->images->count() > 0) {
+        $firstImage = $product->images->first();
+
+        $product->update(['image_url' => $firstImage->url]);
+      } else {
+        $product->update(['image_url' => null]);
+      }
+
+      return $this->successResponse('圖片刪除成功', null, 200);
+    } catch (\Throwable $e) {
+      return $this->errorResponse('圖片刪除失敗：' . $e->getMessage(), 500);
     }
   }
 }

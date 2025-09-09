@@ -38,12 +38,12 @@
             <table class="product-datatable table border-top">
                 <thead>
                     <tr>
-                        <th>商品圖片</th>
+                        <th width="100">商品圖片</th>
                         <th>商品名稱</th>
-                        <th>庫存數量</th>
-                        <th>上架狀態</th>
-                        <th>價格</th>
-                        <th></th>
+                        <th width="100">庫存數量</th>
+                        <th width="100">上架狀態</th>
+                        <th width="100">價格</th>
+                        <th width="100"></th>
                     </tr>
                 </thead>
             </table>

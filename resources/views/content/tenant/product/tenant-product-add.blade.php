@@ -73,12 +73,12 @@
                     <!-- 商品資訊 -->
 
                     <!-- 商品圖片 -->
-                    {{-- <div class="card mb-4">
+                    <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-tile mb-0">商品圖片</h5>
                         </div>
                         <div class="card-body">
-                            <div class="dropzone needsclick" id="dropzone-multi">
+                            <div class="dropzone needsclick" id="dropzone-images">
                                 <div class="dz-message needsclick">
                                     上傳檔案或是拖曳至此
                                     <span class="note needsclick">大小限制：10MB, 1500 × 1500 pixel 您可以上傳 JPEG, PNG or
@@ -89,7 +89,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div> --}}
+                    </div>
                     <!-- 商品圖片 -->
 
                     <!-- 商品庫存 -->
@@ -162,4 +162,19 @@
             </div>
         </form>
     </div>
+
+    @if (isset($product) && $product->images->count() > 0)
+        <script>
+            window.existingImages = {!! json_encode(
+                $product->images->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'filename' => $image->filename,
+                        'size' => $image->size,
+                        'url' => asset('storage/tenants/' . tenant('id') . '/' . $image->url),
+                    ];
+                }),
+            ) !!};
+        </script>
+    @endif
 @endsection

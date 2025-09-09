@@ -38,6 +38,27 @@ $(function () {
       ],
       columnDefs: [
         {
+          targets: 0,
+          render: function (data, type, full, meta) {
+            if (full['image_url']) {
+              return `
+                <div class="position-relative" style="width: 100px; height: 100px;">
+                  <img src="${data}" alt="商品圖片" class="rounded-2 shadow-sm" style="width: 100%; height: 100%; object-fit: cover; border: 1px solid #e0e0e0; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                </div>
+              `;
+            } else {
+              return `
+                <div class="position-relative d-flex align-items-center justify-content-center rounded-2 shadow-sm" style="width: 100px; height: 100px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #e0e0e0; transition: all 0.2s ease;" onmouseover="this.style.background='linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'">
+                  <div class="text-center">
+                    <i class="bx bx-image text-muted" style="font-size: 28px; opacity: 0.6;"></i>
+                    <div class="text-muted small mt-1" style="font-size: 11px; font-weight: 500;">無圖片</div>
+                  </div>
+                </div>
+              `;
+            }
+          }
+        },
+        {
           targets: 3,
           render: function (data, type, full, meta) {
             return `<span class="badge ${full['status_badge']}">${full['status_name']}</span>`;

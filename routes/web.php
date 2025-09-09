@@ -54,6 +54,8 @@ Route::group([
           Route::post('categories/sort', [\App\Http\Controllers\Tenant\TenantCategoryController::class, 'updateSort'])->name('tenant.categories.sort');
           Route::get('categories/tree', [\App\Http\Controllers\Tenant\TenantCategoryController::class, 'getCategoryTree'])->name('tenant.categories.tree');
           Route::resource('categories', \App\Http\Controllers\Tenant\TenantCategoryController::class)->names('tenant.categories');
+
+          Route::delete('products/images/{id}', [\App\Http\Controllers\Tenant\TenantProductController::class, 'destroyImage'])->name('tenant.products.images.destroy');
           Route::resource('products', \App\Http\Controllers\Tenant\TenantProductController::class)->names('tenant.products');
 
           // 員工管理

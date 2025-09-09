@@ -11,6 +11,123 @@ $(function () {
   const productId = $('#product_id').val();
   const isEdit = productId !== '';
 
+  // 圖片上傳相關變數
+  let images = [];
+
+  const previewTemplate = `<div class="dz-preview dz-file-preview">
+    <div class="dz-details">
+      <div class="dz-thumbnail">
+        <img data-dz-thumbnail>
+        <span class="dz-nopreview">No preview</span>
+        <div class="dz-success-mark"></div>
+        <div class="dz-error-mark"></div>
+        <div class="dz-error-message"><span data-dz-errormessage></span></div>
+        <div class="progress">
+          <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-dz-uploadprogress></div>
+        </div>
+      </div>
+      <div class="dz-filename" data-dz-name></div>
+      <div class="dz-size" data-dz-size></div>
+    </div>
+  </div>`;
+
+  // 初始化 Dropzone
+  const dropzoneImages = document.querySelector('#dropzone-images');
+  if (dropzoneImages) {
+    const myDropzoneMulti = new Dropzone(dropzoneImages, {
+      previewTemplate: previewTemplate,
+      parallelUploads: 1,
+      maxFilesize: 10,
+      addRemoveLinks: true,
+      dictRemoveFile: '移除檔案',
+      dictCancelUpload: '取消上傳',
+      url: '#',
+      init: function () {
+        // 如果是編輯模式，載入現有圖片
+        if (isEdit && window.existingImages) {
+          console.log('Loading existing images:', window.existingImages);
+          const dropzone = this;
+          window.existingImages.forEach(function (imageData) {
+            const mockFile = {
+              id: imageData.id,
+              name: imageData.filename,
+              size: imageData.size
+            };
+
+            images.push({
+              name: imageData.filename,
+              size: 0,
+              type: 'image/jpeg',
+              data: imageData.url,
+              isExisting: true,
+              id: imageData.id
+            });
+
+            dropzone.displayExistingFile(mockFile, imageData.url);
+          });
+        }
+
+        this.on('addedfile', function (file) {
+          // 將檔案轉為 base64
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const base64Data = e.target.result;
+            images.push({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              data: base64Data
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+
+        this.on('removedfile', function (file) {
+          const removedImage = images.find(f => f.name === file.name);
+
+          // 如果是現有圖片，需要從資料庫刪除
+          if (removedImage && removedImage.isExisting && removedImage.id) {
+            axios
+              .delete(`/${tenant}/admin/products/images/${removedImage.id}`)
+              .then(function (response) {
+                if (response.data.success) {
+                  images = images.filter(f => f.name !== file.name);
+
+                  Swal.fire({
+                    icon: 'success',
+                    title: '圖片刪除成功',
+                    text: response.data.message,
+                    confirmButtonText: '確定'
+                  });
+                } else {
+                  images = images.filter(f => f.name !== file.name);
+
+                  Swal.fire({
+                    icon: 'error',
+                    title: '圖片刪除失敗',
+                    text: response.data.message,
+                    confirmButtonText: '確定'
+                  });
+                }
+              })
+              .catch(function (error) {
+                images = images.filter(f => f.name !== file.name);
+
+                Swal.fire({
+                  icon: 'error',
+                  title: '圖片刪除失敗',
+                  text: error.response.data.message,
+                  confirmButtonText: '確定'
+                });
+              });
+          } else {
+            images = images.filter(f => f.name !== file.name);
+          }
+        });
+      }
+    });
+  }
+
   const fv = FormValidation.formValidation(productForm[0], {
     fields: {
       name: {
@@ -51,6 +168,9 @@ $(function () {
         });
 
         formObject.categories = categories;
+
+        const newImages = images.filter(img => !img.isExisting);
+        formObject.images = newImages;
 
         showLoading('儲存中...');
 
