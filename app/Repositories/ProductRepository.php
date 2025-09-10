@@ -7,8 +7,9 @@ use App\Models\Product;
 class ProductRepository extends Repository
 {
     protected $fieldSearchable = [
-      'name' => 'like',
-      'categories.id' => 'in',
+        'name' => 'like',
+        'status',
+        'categories.id' => 'in',
     ];
 
     /**
@@ -21,8 +22,24 @@ class ProductRepository extends Repository
         return Product::class;
     }
 
-    public function getProducts($attributes = [])
+    public function getProducts(array $attributes = [])
     {
+        //$this->applyCriteria();
+
+        $this->model = $this->model->when($attributes['name'] ?? false, function ($query) use ($attributes) {
+            $query->where('name', 'like', '%' . $attributes['name'] . '%');
+        });
+
+        $this->model = $this->model->when($attributes['status'] ?? false, function ($query) use ($attributes) {
+            $query->where('status', $attributes['status']);
+        });
+
+        $this->model = $this->model->when($attributes['categories'] ?? false, function ($query) use ($attributes) {
+            $query->whereHas('categories', function ($query) use ($attributes) {
+                $query->whereIn('categories.id', $attributes['categories']);
+            });
+        });
+
         return $this->model
             ->with('categories')
             ->latest()

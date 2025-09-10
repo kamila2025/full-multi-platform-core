@@ -30,7 +30,14 @@ class TenantProductController extends BaseTenantController
     $this->authorizePermission(PermissionNameEnum::商品管理);
 
     if ($request->ajax()) {
-      $records = $this->productRepository->getProducts();
+      $attributes = $request->validate([
+        'name'          => 'nullable|string|max:255',
+        'status'        => 'nullable|string|max:255',
+        'categories'    => 'nullable|array',
+        'categories.*'  => 'integer|exists:categories,id',
+      ]);
+
+      $records = $this->productRepository->getProducts($attributes);
 
       return DataTables::of($records)
         ->addColumn('name',                   fn($record) => $record->name)
@@ -43,7 +50,9 @@ class TenantProductController extends BaseTenantController
         ->make(true);
     }
 
-    return view('content.tenant.product.tenant-product');
+    return view('content.tenant.product.tenant-product', [
+      'categories' => Category::all(),
+    ]);
   }
 
   /**

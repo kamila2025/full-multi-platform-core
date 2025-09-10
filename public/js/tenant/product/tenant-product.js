@@ -8,6 +8,13 @@ $(function () {
   const dataTables = $('.product-datatable');
   const apiUrl = `/${tenant}/admin/products`;
 
+  // 搜尋欄位
+  const searchName = $('#searchName');
+  const searchStatus = $('#searchStatus');
+  const searchCategory = $('#searchCategory');
+  const searchBtn = $('#searchBtn');
+  const resetBtn = $('#resetBtn');
+
   if (dataTables.length) {
     var table = dataTables.DataTable({
       processing: true,
@@ -19,6 +26,11 @@ $(function () {
       ajax: {
         url: apiUrl,
         type: 'GET',
+        data: function (d) {
+          d.name = searchName.val();
+          d.status = searchStatus.val();
+          d.categories = searchCategory.val();
+        },
         error: function (xhr, error, thrown) {
           Swal.fire({
             icon: 'error',
@@ -43,7 +55,7 @@ $(function () {
             if (full['image_url']) {
               return `
                 <div class="position-relative" style="width: 100px; height: 100px;">
-                  <img src="${data}" alt="商品圖片" class="rounded-2 shadow-sm" style="width: 100%; height: 100%; object-fit: cover; border: 1px solid #e0e0e0; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                  <img src="${data}" alt="商品圖片" class="rounded-2" style="width: 100%; height: 100%; object-fit: cover; border: 1px solid #e0e0e0;">
                 </div>
               `;
             } else {
@@ -129,6 +141,19 @@ $(function () {
       buttons: []
     });
   }
+
+  // 搜尋事件
+  searchBtn.on('click', function () {
+    table.draw();
+  });
+
+  // 重置事件
+  resetBtn.on('click', function () {
+    searchName.val('');
+    searchStatus.val('').trigger('change');
+    searchCategory.val('').trigger('change');
+    table.draw();
+  });
 
   // 刪除商品
   $(document).on('click', '.delete-record', function () {
