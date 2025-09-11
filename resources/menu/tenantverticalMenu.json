@@ -1,0 +1,25 @@
+{
+  "menu": [
+    {
+      "url": "admin/dashboard",
+      "name": "主控台",
+      "icon": "menu-icon tf-icons bx bx-home-circle",
+      "slug": "tenant.dashboard.index"
+    },
+    {
+      "menuHeader": "系統設定"
+    },
+    {
+      "url": "admin/users",
+      "icon": "menu-icon tf-icons bx bxs-user",
+      "name": "員工管理",
+      "slug": "tenant.users.index"
+    },
+    {
+      "url": "admin/roles",
+      "icon": "menu-icon tf-icons bx bxs-user-plus",
+      "name": "角色管理",
+      "slug": "tenant.roles.index"
+    }
+  ]
+}
