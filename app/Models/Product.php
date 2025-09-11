@@ -13,14 +13,19 @@ class Product extends Model
       'status'                => \App\Enums\Tenant\Product\ProductStatusEnum::class,
     ];
 
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort');
+    }
+
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_has_product');
     }
 
-    public function images()
+    public function variants()
     {
-        return $this->hasMany(ProductImage::class)->orderBy('sort');
+        return $this->hasMany(Variant::class)->orderBy('sort');
     }
 
     protected static function booted()

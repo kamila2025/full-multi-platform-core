@@ -42,6 +42,10 @@ class productService
             $this->handleImageUpload($product, $attributes['images']);
           }
 
+          if (isset($attributes['variants'])) {
+            $this->handleVariants($product, $attributes['variants']);
+          }
+
           DB::commit();
 
           return $product;
@@ -76,11 +80,15 @@ class productService
               $product->categories()->sync($attributes['categories']);
             }
 
-            if (isset($attributes['images'])) {
-              $this->handleImageUpload($product, $attributes['images']);
-            }
+          if (isset($attributes['images'])) {
+            $this->handleImageUpload($product, $attributes['images']);
+          }
 
-            DB::commit();
+          if (isset($attributes['variants'])) {
+            $this->handleVariants($product, $attributes['variants']);
+          }
+
+          DB::commit();
 
             return $product;
         } catch (\Throwable $e) {
@@ -186,5 +194,27 @@ class productService
         ];
 
         return $extensions[$mimeType] ?? 'jpg';
+    }
+
+    /**
+     * 處理商品規格
+     */
+    private function handleVariants(Product $product, array $variants): void
+    {
+        if (!empty($variants)) {
+            $product->variants()->delete();
+
+            foreach ($variants as $variant) {
+                $product->variants()->create([
+                    'name'              => $variant['combination'] ?? null,
+                    'sku'               => $variant['sku'] ?? null,
+                    'barcode'           => $variant['barcode'] ?? null,
+
+                    'price'             => $variant['price'] ?? 0,
+                    'compare_at_price'  => $variant['compare_at_price'] ?? null,
+                    'cost_price'        => $variant['cost_price'] ?? null,
+                ]);
+            }
+        }
     }
 }

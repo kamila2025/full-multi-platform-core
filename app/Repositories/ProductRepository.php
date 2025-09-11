@@ -41,7 +41,7 @@ class ProductRepository extends Repository
         });
 
         return $this->model
-            ->with('categories')
+            ->with('categories', 'variants')
             ->latest()
             ->get();
     }

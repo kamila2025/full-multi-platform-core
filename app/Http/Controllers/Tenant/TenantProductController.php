@@ -46,7 +46,7 @@ class TenantProductController extends BaseTenantController
         ->addColumn('inventory_management',   fn($record) => 0)
         ->addColumn('status_name',            fn($record) => $record->status->name)
         ->addColumn('status_badge',           fn($record) => $record->status->badgeClass())
-        ->addColumn('price',                  fn($record) => 0)
+        ->addColumn('price',                  fn($record) => $record->variants->first()->price ?? 0)
         ->make(true);
     }
 
@@ -76,35 +76,44 @@ class TenantProductController extends BaseTenantController
 
     try {
       $attributes = $request->validate([
-        'name'                  => 'required|string|max:255',
-        'description'           => 'nullable|string|max:255',
-        'image_url'             => 'nullable|string|max:255',
-        'inventory_management'  => 'nullable|string|max:255',
-        'status'                => 'required|string|max:255',
-
-        'categories'            => 'nullable|array',
-        'categories.*'          => 'integer|exists:categories,id',
-
-        'images'                => 'nullable|array',
-        'images.*.name'         => 'required|string|max:255',
-        'images.*.type'         => 'required|string|in:image/jpeg,image/png,image/jpg,image/gif',
-        'images.*.size'         => 'required|integer|max:10485760',
-        'images.*.data'         => 'required|string',
+        'name'                        => 'required|string|max:255',
+        'description'                 => 'nullable|string|max:255',
+        'image_url'                   => 'nullable|string|max:255',
+        'inventory_management'        => 'nullable|string|max:255',
+        'status'                      => 'required|string|max:255',
+        // 分類
+        'categories'                  => 'nullable|array',
+        // 圖片
+        'images'                      => 'nullable|array',
+        'images.*.name'               => 'required|string|max:255',
+        'images.*.type'               => 'required|string|in:image/jpeg,image/png,image/jpg,image/gif',
+        'images.*.size'               => 'required|integer|max:10485760',
+        'images.*.data'               => 'required|string',
+        // 多規格
+        'variants'                    => 'required|array',
+        'variants.*.price'            => 'required|numeric',
+        'variants.*.compare_at_price' => 'nullable|numeric',
+        'variants.*.cost_price'       => 'nullable|numeric',
       ],[],[
-        'name'                  => '商品名稱',
-        'description'           => '商品描述',
-        'image_url'             => '商品圖片',
-        'inventory_management'  => '庫存管理方式',
-        'status'                => '狀態',
-
-        'categories'            => '商品分類',
-        'categories.*'          => '商品分類',
-
-        'images'                => '商品圖片',
-        'images.*.name'         => '圖片檔名',
-        'images.*.type'         => '圖片格式',
-        'images.*.size'         => '圖片大小',
-        'images.*.data'         => '圖片資料',
+        'name'                        => '商品名稱',
+        'description'                 => '商品描述',
+        'image_url'                   => '商品圖片',
+        'inventory_management'        => '庫存管理方式',
+        'status'                      => '狀態',
+        // 分類
+        'categories'                  => '商品分類',
+        'categories.*'                => '商品分類',
+        // 圖片
+        'images'                      => '商品圖片',
+        'images.*.name'               => '圖片檔名',
+        'images.*.type'               => '圖片格式',
+        'images.*.size'               => '圖片大小',
+        'images.*.data'               => '圖片資料',
+        // 多規格
+        'variants'                    => '商品規格',
+        'variants.*.price'            => '售價',
+        'variants.*.compare_at_price' => '原價',
+        'variants.*.cost_price'       => '成本價',
       ]);
 
       $product = $this->productService->createProduct($attributes);
@@ -134,11 +143,11 @@ class TenantProductController extends BaseTenantController
   {
     $this->authorizePermission(PermissionNameEnum::商品管理);
 
-    $product = $this->productRepository->findOrFail($id);
+    $product = Product::with('categories', 'variants')->findOrFail($id);
 
     return view('content.tenant.product.tenant-product-add', [
-      'product' => $product,
-      'categories' => Category::all(),
+      'product'     => $product,
+      'categories'  => Category::all(),
     ]);
   }
 
@@ -151,35 +160,43 @@ class TenantProductController extends BaseTenantController
 
     try {
       $attributes = $request->validate([
-        'name'                  => 'required|string|max:255',
-        'description'           => 'nullable|string|max:255',
-        'image_url'             => 'nullable|string|max:255',
-        'status'                => 'required|string|max:255',
-        'inventory_management'  => 'nullable|string|max:255',
-
-        'categories'            => 'nullable|array',
-        'categories.*'          => 'integer|exists:categories,id',
-
-        'images'                => 'nullable|array',
-        'images.*.name'         => 'required|string|max:255',
-        'images.*.type'         => 'required|string|in:image/jpeg,image/png,image/jpg,image/gif',
-        'images.*.size'         => 'required|integer|max:10485760',
-        'images.*.data'         => 'required|string',
+        'name'                        => 'required|string|max:255',
+        'description'                 => 'nullable|string|max:255',
+        'image_url'                   => 'nullable|string|max:255',
+        'status'                      => 'required|string|max:255',
+        'inventory_management'        => 'nullable|string|max:255',
+        // 分類
+        'categories'                  => 'nullable|array',
+        // 圖片
+        'images'                      => 'nullable|array',
+        'images.*.name'               => 'required|string|max:255',
+        'images.*.type'               => 'required|string|in:image/jpeg,image/png,image/jpg,image/gif',
+        'images.*.size'               => 'required|integer|max:10485760',
+        'images.*.data'               => 'required|string',
+        // 多規格
+        'variants'                    => 'required|array',
+        'variants.*.price'            => 'required|numeric',
+        'variants.*.compare_at_price' => 'nullable|numeric',
+        'variants.*.cost_price'       => 'nullable|numeric',
       ],[],[
-        'name'                  => '商品名稱',
-        'description'           => '商品描述',
-        'image_url'             => '商品圖片',
-        'status'                => '狀態',
-        'inventory_management'  => '庫存管理方式',
-
-        'categories'            => '商品分類',
-        'categories.*'          => '商品分類',
-
-        'images'                => '商品圖片',
-        'images.*.name'         => '圖片檔名',
-        'images.*.type'         => '圖片格式',
-        'images.*.size'         => '圖片大小',
-        'images.*.data'         => '圖片資料',
+        'name'                        => '商品名稱',
+        'description'                 => '商品描述',
+        'image_url'                   => '商品圖片',
+        'status'                      => '狀態',
+        'inventory_management'        => '庫存管理方式',
+        // 分類
+        'categories'                  => '商品分類',
+        // 圖片
+        'images'                      => '商品圖片',
+        'images.*.name'               => '圖片檔名',
+        'images.*.type'               => '圖片格式',
+        'images.*.size'               => '圖片大小',
+        'images.*.data'               => '圖片資料',
+        // 多規格
+        'variants'                    => '商品規格',
+        'variants.*.price'            => '售價',
+        'variants.*.compare_at_price' => '原價',
+        'variants.*.cost_price'       => '成本價',
       ]);
 
       $product = $this->productService->updateProduct($id, $attributes);
