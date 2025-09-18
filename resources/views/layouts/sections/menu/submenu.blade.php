@@ -24,6 +24,19 @@
                             $activeClass = $active;
                         }
                     }
+                } else {
+                    // 對於子選單項目，檢查是否為相關路由群組
+                    if (str_contains($submenu->slug, '.')) {
+                        $slugParts = explode('.', $submenu->slug);
+                        $currentParts = explode('.', $currentRouteName);
+
+                        // 檢查前兩部分是否相同（例如：tenant.products）
+                        if (count($slugParts) >= 2 && count($currentParts) >= 2) {
+                            if ($slugParts[0] === $currentParts[0] && $slugParts[1] === $currentParts[1]) {
+                                $activeClass = 'active';
+                            }
+                        }
+                    }
                 }
             @endphp
 

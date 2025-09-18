@@ -48,11 +48,17 @@
                                 }
                             }
                         } else {
-                            if (
-                                str_contains($currentRouteName, $menu->slug) and
-                                strpos($currentRouteName, $menu->slug) === 0
-                            ) {
-                                $activeClass = 'active open';
+                            // 對於沒有子選單的選單項目，檢查是否為相關路由群組
+                            if (str_contains($menu->slug, '.')) {
+                                $slugParts = explode('.', $menu->slug);
+                                $currentParts = explode('.', $currentRouteName);
+
+                                // 檢查前兩部分是否相同（例如：tenant.users）
+                                if (count($slugParts) >= 2 && count($currentParts) >= 2) {
+                                    if ($slugParts[0] === $currentParts[0] && $slugParts[1] === $currentParts[1]) {
+                                        $activeClass = 'active';
+                                    }
+                                }
                             }
                         }
                     }
